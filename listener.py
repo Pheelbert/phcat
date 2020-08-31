@@ -38,10 +38,6 @@ def main():
         print(f'{command}\n--------\n{output}\n--------\n')
 
 def ignore_until_prompt(client, prompt=EXPECTED_PROMPT):
-    if not isinstance(prompt, bytes):
-        print('Prompt must be bytes')
-        exit()
-
     client.recvuntil(prompt)
 
 def send_command_read_output(client, command, prompt=EXPECTED_PROMPT, timeout=COMMAND_TIMEOUT, single_line_output=False):
