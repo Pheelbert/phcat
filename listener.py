@@ -7,6 +7,7 @@ LISTENING_PORT = 9001
 NETCAT_FILE_TRANSFER_PORT = 9002
 COMMAND_TIMEOUT = 1 # Waits at least 1 second when 'until' string doesn't match
 ENCODING = 'utf-8'
+COMMAND_OUTPUT_REMOTE_FOLDER = '/tmp/'
 
 def main():
     short_commands = [
@@ -55,9 +56,9 @@ def send_command_read_output(client, command, prompt=EXPECTED_PROMPT, timeout=CO
 
     return output.strip()
 
-def send_command_temporary_file(client, command):
+def send_command_temporary_file(client, command, remote_output_folder=COMMAND_OUTPUT_REMOTE_FOLDER):
     hash_str = hashlib.md5(command.encode()).hexdigest()
-    output_remote_temporary_file = '/tmp/' + hash_str
+    output_remote_temporary_file = remote_output_folder + hash_str
 
     if remote_file_exists(client, output_remote_temporary_file):
         return output_remote_temporary_file
