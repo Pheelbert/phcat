@@ -10,6 +10,8 @@ ENCODING = 'utf-8'
 COMMAND_OUTPUT_REMOTE_FOLDER = '/tmp/'
 
 # TODO: Upload file to victim, execute it, and download output. e.g.: linpeas
+#       https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS
+# TODO: Encrypt whatever I can. e.g.: Cached command files, transferred files, etc
 def main():
     short_commands = [
         'whoami',
