@@ -1,6 +1,4 @@
 import hashlib
-import subprocess
-import sys
 import pwn
 
 ATTACKER_IP = '10.10.14.7'
