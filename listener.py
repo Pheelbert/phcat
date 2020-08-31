@@ -9,6 +9,7 @@ COMMAND_TIMEOUT = 1 # Waits at least 1 second when 'until' string doesn't match
 ENCODING = 'utf-8'
 COMMAND_OUTPUT_REMOTE_FOLDER = '/tmp/'
 
+# TODO: Upload file to victim, execute it, and download output. e.g.: linpeas
 def main():
     short_commands = [
         'whoami',
