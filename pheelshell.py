@@ -20,7 +20,7 @@ class PheelShell:
     def send_command_read_output(self, command, single_line_output=False):
         self.ignore_until_prompt()
         self.client.sendline(command)
-        self.client.recvuntil(b'\n')
+        self.client.recvuntil(command + b'\n')
 
         output = ''
         while True:
@@ -65,3 +65,7 @@ class PheelShell:
         remote_temporary_file = self.send_command_temporary_file(command)
         output = self.download_remote_file(remote_temporary_file)
         return output
+
+    def run_playbook(self, playbook):
+        playbook.run(self)
+        return playbook

