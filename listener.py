@@ -1,3 +1,4 @@
+import argparse
 import pwn
 import pheelshell
 import playbooks.enumerate.basic_host_information
@@ -5,16 +6,14 @@ import playbooks.enumerate.dependencies
 import playbooks.enumerate.sudo_list
 import utilities
 
-LISTENING_PORT = 9001
-
 def main():
-    # Picks the local IP for HTB. Give the option to the user in the future.
-    attacker_ip = None
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--victim_ip', required=True)
+    parser.add_argument('-p', '--port', default=9001)
+    args = parser.parse_args()
+
     ipv4s = utilities.fetch_ipv4_addresses()
-    for ipv4 in ipv4s:
-        if ipv4.startswith('10.10.14'):
-            attacker_ip = ipv4
-            break
+    attacker_ip = pick_best_nic(ipv4s, args.victim_ip)
 
     active_playbooks = [
         playbooks.enumerate.dependencies.EnumerateDependencies(),
@@ -22,8 +21,9 @@ def main():
         playbooks.enumerate.sudo_list.EnumerateSudoList()
     ]
 
-    print(f'Listening {attacker_ip}:{LISTENING_PORT}...')
-    with pwn.listen(LISTENING_PORT).wait_for_connection() as client:
+    print(f'Listening {attacker_ip}:{args.port}...')
+    pwn.context.log_level = 'error'
+    with pwn.listen(args.port).wait_for_connection() as client:
         shell = pheelshell.PheelShell(client, b'$ ', attacker_ip)
 
         for playbook in active_playbooks:
@@ -31,6 +31,27 @@ def main():
 
     for playbook in active_playbooks:
         print(str(playbook))
+
+def pick_best_nic(ipv4s, target_ip):
+    best_match = 0
+    best_match_nic = None
+    for ipv4 in ipv4s:
+        matching_count = count_matching_starting_characters(ipv4, target_ip)
+        if matching_count > best_match:
+            best_match = matching_count
+            best_match_nic = ipv4
+
+    return best_match_nic
+
+def count_matching_starting_characters(substring, string):
+    count = 0
+    for subchar, char in zip(substring, string):
+        if subchar == char:
+            count += 1
+        else:
+            break
+    
+    return count
 
 if __name__ == '__main__':
     main()
