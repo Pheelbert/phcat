@@ -2,7 +2,7 @@ import http.server
 import os
 import shutil
 import socketserver
-import netifaces
+import utilities
 
 PORT = 8000
 SERVING_DIRECTORY = '/tmp/pheelpwncat/'
@@ -12,7 +12,7 @@ TRANSFER_FOLDER = 'transfer/'
 def main():
     prepare_serving_directory(SERVING_DIRECTORY, TRANSFER_FOLDER)
     os.chdir(SERVING_DIRECTORY)
-    ipv4s = fetch_ipv4_addresses()
+    ipv4s = utilities.fetch_ipv4_addresses()
     create_victim_clients_for_addresses(VICTIM_CLIENT_FILENAME, ipv4s)
 
     http_handler = http.server.SimpleHTTPRequestHandler
@@ -47,17 +47,6 @@ def prepare_serving_directory(directory, transfer_folder):
     shutil.copy2(VICTIM_CLIENT_FILENAME, directory)
     for filename in os.listdir(transfer_folder):
         shutil.copy2(transfer_folder + filename, directory)
-
-def fetch_ipv4_addresses():
-    ip_list = set()
-    for interface in netifaces.interfaces():
-        if netifaces.AF_INET in netifaces.ifaddresses(interface):
-            for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
-                address = link['addr']
-                if address != '127.0.0.1':
-                    ip_list.add(address)
-
-    return list(ip_list)
 
 if __name__ == '__main__':
     main()
