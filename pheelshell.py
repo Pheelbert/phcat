@@ -33,7 +33,7 @@ class PheelShell:
         return output.strip()
 
     def send_command_temporary_file(self, command):
-        hash_str = hashlib.md5(command.encode()).hexdigest()
+        hash_str = hashlib.md5(command).hexdigest()
         output_remote_temporary_file = self.remote_output_folder + hash_str
 
         if self.remote_file_exists(output_remote_temporary_file):
