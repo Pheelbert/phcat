@@ -27,7 +27,7 @@ def main():
         shell = pheelshell.PheelShell(client, b'$ ', attacker_ip)
 
         for playbook in active_playbooks:
-            playbook = shell.run_playbook(playbook)
+            shell.run_playbook(playbook)
 
     for playbook in active_playbooks:
         print(str(playbook))
