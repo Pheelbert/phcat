@@ -8,13 +8,13 @@ class EnumerateBasicHostInformation:
         self.output_map = {}
 
     def __str__(self):
-        output = 'Host information:\n'
+        output = '[host information]\n'
         for command, command_output in self.output_map.items():
             output += f' - {command}: {command_output}\n'
 
         return output
 
-    def run(self, pheelshell):
+    def run(self, shell):
         for command in self.commands:
-            output = pheelshell.send_command_read_output(command.encode(), single_line_output=True)
+            output = shell.send_command_read_output(command.encode(), single_line_output=True)
             self.output_map[command] = output

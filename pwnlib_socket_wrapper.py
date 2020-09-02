@@ -2,9 +2,9 @@ import hashlib
 import pwn
 
 '''
-Wrapper around pwntool's client
+pwnlib.tubes.sock wrapper
 '''
-class PheelShell:
+class PwnlibSocketWrapper:
     def __init__(self, client, expected_prompt, attacker_ip):
         self.client = client
         self.expected_prompt = expected_prompt

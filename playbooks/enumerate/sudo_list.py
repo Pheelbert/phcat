@@ -3,15 +3,15 @@ class EnumerateSudoList:
         self.interesting_lines = []
 
     def __str__(self):
-        output = 'Sudo rights for current user:\n'
+        output = '[sudo list]\n'
         for line in self.interesting_lines:
             output += f' - {line}\n'
 
         return output
 
-    def run(self, pheelshell):
+    def run(self, shell):
         sudo_list_command = 'sudo -l'
-        output = pheelshell.send_command_read_cached_temporary_file(sudo_list_command.encode())
+        output = shell.send_command_read_cached_temporary_file(sudo_list_command.encode())
         self._parse(output)
 
     def _parse(self, output):
