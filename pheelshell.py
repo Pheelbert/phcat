@@ -68,4 +68,3 @@ class PheelShell:
 
     def run_playbook(self, playbook):
         playbook.run(self)
-        return playbook
