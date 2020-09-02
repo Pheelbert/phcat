@@ -33,3 +33,4 @@
 - (Low) Some kind of client/server written on python which allows me to send commands to the victim via an encrypted channel and he just run code locally. Implement with as little dependencies as possible (will require at least python3). Since python3 is required, maybe this isn't a great idea. Might as well just send commands to the victim directly via pwntools.
 - (Low) If long running commands aren't working, echo a magic string and run recvuntil that magic string is encountered
 - (Low) Better logging with colors and stuff!
+- (Low) When checking SUID files, compare against pre-built list of 'known' default install binaries. Also check creation dates for clues.
