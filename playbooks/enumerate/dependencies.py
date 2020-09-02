@@ -22,6 +22,6 @@ class EnumerateDependencies:
     def run(self, shell):
         for binary in self.interesting_binaries:
             which_command = f'which {binary}'
-            output = shell.send_command_read_output(which_command.encode(), single_line_output=True)
+            output = shell.execute_command(which_command, single_line_output=True)
             if output:
                 self.available_binaries_map[binary] = output

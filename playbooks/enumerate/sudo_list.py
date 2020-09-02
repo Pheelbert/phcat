@@ -11,7 +11,7 @@ class EnumerateSudoList:
 
     def run(self, shell):
         sudo_list_command = 'sudo -l'
-        output = shell.send_command_read_cached_temporary_file(sudo_list_command.encode())
+        output = shell.execute_command(sudo_list_command)
         self._parse(output)
 
     def _parse(self, output):

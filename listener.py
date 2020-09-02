@@ -1,6 +1,7 @@
 import argparse
 import pwn
 import pheelprompt
+import pheelshell
 import playbooks.enumerate.basic_host_information
 import playbooks.enumerate.dependencies
 import playbooks.enumerate.sudo_list
@@ -28,7 +29,8 @@ def main():
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
         print('Connected!')
-        shell = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
+        socket_wrapper = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
+        shell = pheelshell.Pheelshell(socket_wrapper)
 
         for playbook in active_playbooks:
             shell.run_playbook(playbook)
