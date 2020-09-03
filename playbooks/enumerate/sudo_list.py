@@ -16,6 +16,9 @@ class EnumerateSudoList(Playbook):
 
     def _parse(self, output: str) -> str:
         for line in output.split('\n'):
+            if line in ['(ALL : ALL) ALL', '(ALL) NOPASSWD: ALL']:
+                return 'You can run all commands as root by running \'sudo su\''
+
             matches = re.findall(r'\((.*) : (.*)\) (.*): (.*)', line)
             if matches:
                 user = matches[0][0]
