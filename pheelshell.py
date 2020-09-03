@@ -6,6 +6,7 @@ class Pheelshell():
     def __init__(self, socket: PwnlibSocketWrapper):
         self.socket = socket
         self.playbooks = {}
+        self.hints = []
 
     def execute_command(self, command: str, expect_single_line_output=False) -> str:
         command_bytes = command.encode()
@@ -25,3 +26,9 @@ class Pheelshell():
             return self.playbooks[playbook_class_name]
 
         return None
+
+    def get_hints(self):
+        return self.hints
+
+    def add_hint(self, hint: str):
+        self.hints.append(hint)

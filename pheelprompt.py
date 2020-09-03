@@ -24,6 +24,17 @@ def prompt(pheelshell: Pheelshell=None):
         command = input(prompt_str).strip()
         if command == 'quit' or command == 'exit':
             exit()
+        elif command == 'show hints':
+            if not pheelshell:
+                print('Must be connected to a victim in order to show hints.')
+                continue
+
+            hints = pheelshell.get_hints()
+            for index, hint in enumerate(hints):
+                print(f'[hint #{index + 1}]')
+                print(hint)
+
+            continue
 
         matches = re.search(r'(?P<action>.*) (?P<type>.*) (?P<index>[0-9]+)', command)
         if not matches:
@@ -51,7 +62,7 @@ def prompt(pheelshell: Pheelshell=None):
         if action and module_type:
             if module_index is not None:
                 if not pheelshell:
-                    print('Must be connected to a victim in order to show results.')
+                    print('Must be connected to a victim in order to show playbook results.')
                     continue
                 else:
                     playbook_class = module_type_playbook_classes_map[module_type][module_index]

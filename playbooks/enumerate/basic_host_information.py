@@ -8,11 +8,6 @@ class EnumerateBasicHostInformation(Playbook):
 
     def __init__(self):
         super().__init__()
-        self.commands = [
-            'whoami',
-            'hostname',
-            'uname -a'
-        ]
         self.output_map = {}
 
     def __str__(self):
@@ -39,8 +34,19 @@ class EnumerateBasicHostInformation(Playbook):
         return None
 
     def run(self, shell: Pheelshell):
-        for command in self.commands:
-            output = shell.execute_command(command, expect_single_line_output=True)
-            self.output_map[command] = output
-        
+        whoami_command = 'whoami'
+        output = shell.execute_command(whoami_command, expect_single_line_output=True)
+        if output == 'root':
+            shell.add_hint('You\'re the root user! Congrats!')
+
+        self.output_map[whoami_command] = output
+
+        hostname_command = 'hostname'
+        output = shell.execute_command(hostname_command, expect_single_line_output=True)
+        self.output_map[hostname_command] = output
+
+        os_command = 'uname -a'
+        output = shell.execute_command(os_command, expect_single_line_output=True)
+        self.output_map[os_command] = output
+
         self._has_run = True

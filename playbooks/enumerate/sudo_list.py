@@ -1,3 +1,4 @@
+import re
 from pheelshell import Pheelshell
 from playbooks.playbook import Playbook
 
@@ -8,30 +9,30 @@ class EnumerateSudoList(Playbook):
 
     def __init__(self):
         super().__init__()
-        self.interesting_lines = []
+        self.output = None
 
     def __str__(self):
-        output = '[sudo list]\n'
-        for line in self.interesting_lines:
-            output += f' - {line}\n'
-
-        return output
+        return '[sudo -l]\n' + self.output
 
     def _parse(self, output: str) -> str:
-        interesting_flag = False
         for line in output.split('\n'):
-            if 'may run the following commands' in line:
-                interesting_flag = True
-                continue
+            matches = re.findall(r'\((.*) : (.*)\) (.*): (.*)', line)
+            if matches:
+                user = matches[0][0]
+                group = matches[0][1]
+                nopasswd = matches[0][2]
+                binary = matches[0][3]
+                if nopasswd == 'NOPASSWD' and binary == 'ALL':
+                    return f'You can run all commands as user {user} and group {group} by running \'sudo -u {user} /bin/bash\'.'
 
-            if not line:
-                interesting_flag = False
-
-            if interesting_flag:
-                self.interesting_lines.append(line.strip())
+        return None
 
     def run(self, shell: Pheelshell):
         sudo_list_command = 'sudo -l'
         output = shell.execute_command(sudo_list_command)
-        self._parse(output)
+        self.output = output
+        hint = self._parse(output)
+        if hint:
+            shell.add_hint(hint)
+
         self._has_run = True
