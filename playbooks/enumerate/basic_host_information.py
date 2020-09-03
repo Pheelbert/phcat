@@ -1,4 +1,7 @@
-class EnumerateBasicHostInformation:
+from pheelshell import Pheelshell
+from playbooks.playbook import Playbook
+
+class EnumerateBasicHostInformation(Playbook):
     def __init__(self):
         self.commands = [
             'whoami',
@@ -30,7 +33,7 @@ class EnumerateBasicHostInformation:
         print('You need to run the playbook in order to access the victim hostname.')
         return None
 
-    def run(self, shell):
+    def run(self, shell: Pheelshell):
         for command in self.commands:
             output = shell.execute_command(command, single_line_output=True)
             self.output_map[command] = output

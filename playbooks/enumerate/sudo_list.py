@@ -1,4 +1,7 @@
-class EnumerateSudoList:
+from pheelshell import Pheelshell
+from playbooks.playbook import Playbook
+
+class EnumerateSudoList(Playbook):
     def __init__(self):
         self.interesting_lines = []
 
@@ -9,12 +12,12 @@ class EnumerateSudoList:
 
         return output
 
-    def run(self, shell):
+    def run(self, shell: Pheelshell):
         sudo_list_command = 'sudo -l'
         output = shell.execute_command(sudo_list_command)
         self._parse(output)
 
-    def _parse(self, output):
+    def _parse(self, output: str) -> str:
         interesting_flag = False
         for line in output.split('\n'):
             if 'may run the following commands' in line:

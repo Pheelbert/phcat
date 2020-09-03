@@ -1,6 +1,7 @@
+from pheelshell import Pheelshell
 from playbooks.enumerate.basic_host_information import EnumerateBasicHostInformation
 
-def prompt(pheelshell=None):
+def prompt(pheelshell: Pheelshell=None):
     prompt_str = '[(pheelpwn)]> '
     if pheelshell:
         basic_host_information = pheelshell.get_playbook(EnumerateBasicHostInformation)

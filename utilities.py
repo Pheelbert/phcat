@@ -1,6 +1,7 @@
+from typing import List
 import netifaces
 
-def fetch_ipv4_addresses():
+def fetch_ipv4_addresses() -> List[str]:
     ip_list = set()
     for interface in netifaces.interfaces():
         if netifaces.AF_INET in netifaces.ifaddresses(interface):

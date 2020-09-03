@@ -1,4 +1,5 @@
 import argparse
+from typing import List
 import pwn
 import pheelprompt
 import pheelshell
@@ -40,7 +41,7 @@ def main():
 
         pheelprompt.prompt(shell)
 
-def pick_best_nic(ipv4s, target_ip):
+def pick_best_nic(ipv4s: List[str], target_ip: str) -> str:
     best_match = 0
     best_match_nic = None
     for ipv4 in ipv4s:
@@ -51,7 +52,7 @@ def pick_best_nic(ipv4s, target_ip):
 
     return best_match_nic
 
-def count_matching_starting_characters(substring, string):
+def count_matching_starting_characters(substring: str, string: str) -> int:
     count = 0
     for subchar, char in zip(substring, string):
         if subchar == char:
@@ -62,4 +63,7 @@ def count_matching_starting_characters(substring, string):
     return count
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('\b\b\r')
