@@ -2,7 +2,12 @@ from pheelshell import Pheelshell
 from playbooks.playbook import Playbook
 
 class EnumerateBasicHostInformation(Playbook):
+    @staticmethod
+    def description():
+        return 'Executes commands to obtain user, hostname, and operating system.'
+
     def __init__(self):
+        super().__init__()
         self.commands = [
             'whoami',
             'hostname',
@@ -35,5 +40,7 @@ class EnumerateBasicHostInformation(Playbook):
 
     def run(self, shell: Pheelshell):
         for command in self.commands:
-            output = shell.execute_command(command, single_line_output=True)
+            output = shell.execute_command(command, expect_single_line_output=True)
             self.output_map[command] = output
+        
+        self._has_run = True

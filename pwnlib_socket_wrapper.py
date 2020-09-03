@@ -57,7 +57,7 @@ class PwnlibSocketWrapper:
 
     def remote_file_exists(self, remote_path: str) -> bool:
         file_exists_command = f'file {remote_path}'.encode()
-        output = self.send_command_read_output(file_exists_command, single_line_output=True)
+        output = self.send_command_read_output(file_exists_command, expect_single_line_output=True)
         return 'No such file or directory' not in output and ': empty' not in output
 
     def send_command_read_output_through_temporary_file(self, command_bytes: bytes) -> str:

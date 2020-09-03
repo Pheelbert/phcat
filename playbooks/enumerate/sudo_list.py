@@ -2,7 +2,12 @@ from pheelshell import Pheelshell
 from playbooks.playbook import Playbook
 
 class EnumerateSudoList(Playbook):
+    @staticmethod
+    def description():
+        return 'Executes \'sudo -l\' to determine if there is an easy privilege escalation.'
+
     def __init__(self):
+        super().__init__()
         self.interesting_lines = []
 
     def __str__(self):
@@ -11,11 +16,6 @@ class EnumerateSudoList(Playbook):
             output += f' - {line}\n'
 
         return output
-
-    def run(self, shell: Pheelshell):
-        sudo_list_command = 'sudo -l'
-        output = shell.execute_command(sudo_list_command)
-        self._parse(output)
 
     def _parse(self, output: str) -> str:
         interesting_flag = False
@@ -29,3 +29,9 @@ class EnumerateSudoList(Playbook):
 
             if interesting_flag:
                 self.interesting_lines.append(line.strip())
+
+    def run(self, shell: Pheelshell):
+        sudo_list_command = 'sudo -l'
+        output = shell.execute_command(sudo_list_command)
+        self._parse(output)
+        self._has_run = True

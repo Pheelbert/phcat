@@ -12,7 +12,7 @@ class Pheelshell():
         if expect_single_line_output:
             return self.socket.send_command_read_output(command_bytes, expect_single_line_output=True)
         else:
-            return self.socket.send_command_read_cached_temporary_file(command_bytes)
+            return self.socket.send_command_read_output_through_temporary_file(command_bytes)
 
     def run_playbook(self, playbook: Type[Playbook]):
         playbook.run(self)

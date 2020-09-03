@@ -2,7 +2,12 @@ from pheelshell import Pheelshell
 from playbooks.playbook import Playbook
 
 class EnumerateDependencies(Playbook):
+    @staticmethod
+    def description():
+        return 'Executes \'which\' on a list of useful binary names to determine if they are available.'
+
     def __init__(self):
+        super().__init__()
         self.interesting_binaries = [
             'nc',
             'python3'
@@ -25,6 +30,8 @@ class EnumerateDependencies(Playbook):
     def run(self, shell: Pheelshell):
         for binary in self.interesting_binaries:
             which_command = f'which {binary}'
-            output = shell.execute_command(which_command, single_line_output=True)
+            output = shell.execute_command(which_command, expect_single_line_output=True)
             if output:
                 self.available_binaries_map[binary] = output
+
+        self._has_run = True

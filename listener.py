@@ -3,9 +3,9 @@ from typing import List
 import pwn
 import pheelprompt
 import pheelshell
-import playbooks.enumerate.basic_host_information
-import playbooks.enumerate.dependencies
-import playbooks.enumerate.sudo_list
+from playbooks.enumerate.basic_host_information import EnumerateBasicHostInformation
+from playbooks.enumerate.dependencies import EnumerateDependencies
+from playbooks.enumerate.sudo_list import EnumerateSudoList
 import pwnlib_socket_wrapper
 import utilities
 
@@ -20,10 +20,10 @@ def main():
     ipv4s = utilities.fetch_ipv4_addresses()
     attacker_ip = pick_best_nic(ipv4s, args.victim_ip)
 
-    active_playbooks = [
-        playbooks.enumerate.dependencies.EnumerateDependencies(),
-        playbooks.enumerate.basic_host_information.EnumerateBasicHostInformation(),
-        playbooks.enumerate.sudo_list.EnumerateSudoList()
+    startup_playbooks = [
+        EnumerateDependencies(),
+        EnumerateBasicHostInformation(),
+        EnumerateSudoList()
     ]
 
     print(f'[listener] Listening {attacker_ip}:{args.port}...', end=' ')
@@ -33,11 +33,8 @@ def main():
         socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
         shell = pheelshell.Pheelshell(socket)
 
-        for playbook in active_playbooks:
+        for playbook in startup_playbooks:
             shell.run_playbook(playbook)
-
-        for playbook in active_playbooks:
-            print(str(playbook))
 
         pheelprompt.prompt(shell)
 
