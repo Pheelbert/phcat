@@ -7,11 +7,12 @@ class Pheelshell():
         self.socket = socket
         self.playbooks = {}
 
-    def execute_command(self, command: str, single_line_output=False) -> str:
-        if single_line_output:
-            return self.socket.send_command_read_output(command.encode(), single_line_output=True)
+    def execute_command(self, command: str, expect_single_line_output=False) -> str:
+        command_bytes = command.encode()
+        if expect_single_line_output:
+            return self.socket.send_command_read_output(command_bytes, expect_single_line_output=True)
         else:
-            return self.socket.send_command_read_cached_temporary_file(command.encode())
+            return self.socket.send_command_read_cached_temporary_file(command_bytes)
 
     def run_playbook(self, playbook: Type[Playbook]):
         playbook.run(self)
