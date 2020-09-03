@@ -3,15 +3,15 @@ from playbooks.playbook import Playbook
 from pwnlib_socket_wrapper import PwnlibSocketWrapper
 
 class Pheelshell():
-    def __init__(self, socket_wrapper: PwnlibSocketWrapper):
-        self.socket_wrapper = socket_wrapper
+    def __init__(self, socket: PwnlibSocketWrapper):
+        self.socket = socket
         self.playbooks = {}
 
     def execute_command(self, command: str, single_line_output=False) -> str:
         if single_line_output:
-            return self.socket_wrapper.send_command_read_output(command.encode(), single_line_output=True)
+            return self.socket.send_command_read_output(command.encode(), single_line_output=True)
         else:
-            return self.socket_wrapper.send_command_read_cached_temporary_file(command.encode())
+            return self.socket.send_command_read_cached_temporary_file(command.encode())
 
     def run_playbook(self, playbook: Type[Playbook]):
         playbook.run(self)
