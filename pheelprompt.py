@@ -70,8 +70,11 @@ def prompt(pheelshell: Pheelshell=None):
                     else:
                         playbook_class = module_type_playbook_classes_map[module_type][module_index]
                         playbook = pheelshell.get_playbook(playbook_class)
-                        module_output = str(playbook)
-                        print(module_output)
+                        if playbook and playbook.has_run():
+                            module_output = str(playbook)
+                            print(module_output)
+                        else:
+                            print(f'Must run playbook before showing results by running \'use {module_type} {module_index + 1}\'.')
                 else:
                     for index, playbook_class in enumerate(module_type_playbook_classes_map[module_type]):
                         playbook = pheelshell.get_playbook(playbook_class) if pheelshell else None
