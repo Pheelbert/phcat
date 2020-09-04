@@ -17,8 +17,9 @@ class EnumerateSudoList(Playbook):
 
     def _parse(self, output: str, shell: Pheelshell) -> str:
         for line in output.split('\n'):
-            if line in ['(ALL : ALL) ALL', '(ALL) NOPASSWD: ALL']:
-                shell.add_hint('You can run all commands as root by running \'sudo su\'')
+            if line.strip() in ['(ALL : ALL) ALL', '(ALL : ALL) NOPASSWD: ALL', '(ALL) NOPASSWD: ALL']:
+                shell.add_hint('You can run all commands as root by running \'sudo su\' or \'sudo -i\'')
+                continue
 
             matches = re.findall(r'\((.*)\) (.*): (.*)', line)
             if matches:
