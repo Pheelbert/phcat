@@ -37,7 +37,7 @@ class EnumerateInterestingFiles(Playbook):
     def _parse_paths(self, output):
         lines = []
         for line in output.split('\n'):
-            if ': Permission denied' not in line:
+            if line and ': Permission denied' not in line:
                 lines.append(line)
 
         return lines
