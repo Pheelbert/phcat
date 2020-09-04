@@ -3,12 +3,14 @@ from pheelshell import Pheelshell
 from playbooks.enumerate.basic_host_information import EnumerateBasicHostInformation
 from playbooks.enumerate.dependencies import EnumerateDependencies
 from playbooks.enumerate.sudo_list import EnumerateSudoList
+from playbooks.enumerate.interesting_files import EnumerateInterestingFiles
 
 module_type_playbook_classes_map = {
     'enumerate': [
         EnumerateBasicHostInformation,
         EnumerateDependencies,
-        EnumerateSudoList
+        EnumerateSudoList,
+        EnumerateInterestingFiles
     ]
 }
 
@@ -45,7 +47,7 @@ def prompt(pheelshell: Pheelshell=None):
             continue
 
         action = matches.group('action')
-        if action != 'show':
+        if action not in ['use', 'show']:
             print(f'Unrecognized action in command: "{command}"')
             continue
 
@@ -60,21 +62,28 @@ def prompt(pheelshell: Pheelshell=None):
             continue
 
         if action and module_type:
-            if module_index is not None:
-                if not pheelshell:
-                    print('Must be connected to a victim in order to show playbook results.')
-                    continue
+            if action == 'show':
+                if module_index is not None:
+                    if not pheelshell:
+                        print('Must be connected to a victim in order to show playbook results.')
+                        continue
+                    else:
+                        playbook_class = module_type_playbook_classes_map[module_type][module_index]
+                        playbook = pheelshell.get_playbook(playbook_class)
+                        module_output = str(playbook)
+                        print(module_output)
                 else:
-                    playbook_class = module_type_playbook_classes_map[module_type][module_index]
-                    playbook = pheelshell.get_playbook(playbook_class)
-                    module_output = str(playbook)
-                    print(module_output)
-            else:
-                for index, playbook_class in enumerate(module_type_playbook_classes_map[module_type]):
-                    playbook = pheelshell.get_playbook(playbook_class) if pheelshell else None
-                    status = 'X' if playbook and playbook.has_run() else ' '
-                    description = playbook_class.description()
-                    print(f'{index + 1}. [{status}] {playbook_class.__name__}: {description}')
+                    for index, playbook_class in enumerate(module_type_playbook_classes_map[module_type]):
+                        playbook = pheelshell.get_playbook(playbook_class) if pheelshell else None
+                        status = 'X' if playbook and playbook.has_run() else ' '
+                        description = playbook_class.description()
+                        print(f'{index + 1}. [{status}] {playbook_class.__name__}: {description}')
+            elif action == 'use' and module_index is not None:
+                playbook_class = module_type_playbook_classes_map[module_type][module_index]
+                playbook = playbook_class()
+                pheelshell.run_playbook(playbook)
+                module_output = str(playbook) # TODO: .get_output() instead of str()
+                print(module_output)
 
 def main():
     prompt()

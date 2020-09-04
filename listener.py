@@ -60,6 +60,9 @@ def count_matching_starting_characters(substring: str, string: str) -> int:
     return count
 
 if __name__ == '__main__':
+    main()
+
+    exit()
     try:
         main()
     except KeyboardInterrupt:
