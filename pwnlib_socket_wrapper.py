@@ -1,11 +1,12 @@
 import hashlib
+import uuid
 import pwn
 from pwnlib.tubes.sock import sock
+import utilities
 
 class PwnlibSocketWrapper:
-    def __init__(self, client: sock, expected_prompt: str, attacker_ip: str):
+    def __init__(self, client: sock, attacker_ip: str):
         self.client = client
-        self.expected_prompt = expected_prompt
         self.attacker_ip = attacker_ip
         self.timeout = 1
         self.encoding = 'utf-8'
@@ -13,8 +14,15 @@ class PwnlibSocketWrapper:
         self.netcat_file_transfer_port = 9002
         self.newline_bytes = b'\n'
 
+    def synchronize_output(self):
+        random = str(uuid.uuid1())
+        random_echo_command_bytes = f'echo {random}'.encode()
+        self.client.sendline(random_echo_command_bytes)
+        self.client.recvuntil(random_echo_command_bytes + self.newline_bytes).decode(self.encoding)
+        self.client.recvuntil(random.encode() + self.newline_bytes)
+
     def send_command_read_output(self, command_bytes: bytes, expect_single_line_output=False) -> str:
-        self.client.recvuntil(self.expected_prompt)
+        self.synchronize_output()
         self.client.sendline(command_bytes)
         self.client.recvuntil(command_bytes + self.newline_bytes)
 
@@ -26,7 +34,8 @@ class PwnlibSocketWrapper:
             if not output_line or expect_single_line_output:
                 break
 
-        return output.strip()
+        ansi_escaped_output = utilities.escape_ansi(output)
+        return ansi_escaped_output.strip()
 
     def send_command_redirected_to_temporary_file(self, command_bytes: bytes) -> str:
         _hash = hashlib.md5(command_bytes).hexdigest()

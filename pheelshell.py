@@ -31,4 +31,5 @@ class Pheelshell():
         return self.hints
 
     def add_hint(self, hint: str):
-        self.hints.append(hint)
+        if hint not in self.hints:
+            self.hints.append(hint)

