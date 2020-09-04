@@ -51,7 +51,9 @@ class EnumerateInterestingFiles(Playbook):
             if parsed_output:
                 self.readable_files.extend(parsed_output)
 
-            # TODO: Add hint for user.txt?
+            for filepath in parsed_output:
+                if filepath.endswith('user.txt') or filepath.endswith('root.txt'):
+                    shell.add_hint(f'Found readable HTB flag file: \'{filepath}\'')
 
             writable_command = f'find {interesting_directory} -writable -type f'
             print(f'Finding writable files in \'{interesting_directory}\' by running \'{writable_command}\'')

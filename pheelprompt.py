@@ -34,7 +34,7 @@ def prompt(pheelshell: Pheelshell=None):
             hints = pheelshell.get_hints()
             for index, hint in enumerate(hints):
                 print(f'[hint #{index + 1}]')
-                print(hint)
+                print(f'↳ {hint}')
 
             continue
 

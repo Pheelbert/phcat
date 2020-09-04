@@ -26,13 +26,14 @@ def main():
         EnumerateSudoList()
     ]
 
-    print(f'[listener] Listening {attacker_ip}:{args.port}...', end=' ')
+    print(f'Listening {attacker_ip}:{args.port}...', end=' ')
     pwn.context.log_level = 'error'
     with pwn.listen(args.port).wait_for_connection() as client:
         print('Connected!')
         socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, EXPECTED_PROMPT, attacker_ip)
         shell = pheelshell.Pheelshell(socket)
 
+        print('Running startup enumeration...')
         for playbook in startup_playbooks:
             shell.run_playbook(playbook)
 
@@ -60,9 +61,6 @@ def count_matching_starting_characters(substring: str, string: str) -> int:
     return count
 
 if __name__ == '__main__':
-    main()
-
-    exit()
     try:
         main()
     except KeyboardInterrupt:
