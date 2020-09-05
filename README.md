@@ -26,10 +26,10 @@
     - (Low) Have menu items show if an error occured of if the playbook results are already available  
     - (Low) Show details about found results and what steps to take next  
     - menu['show']['network']['all'] = function  
-    - show enumerate. 
+    - show enumerate  
       [ ] 1. Check SUID binaries  
     - use enumerate 1  
-    - show network.
+    - show network  
       [ ] 1. Local IPv4s  
       [X] 2. Connected subnets  
       [ ] 3. Reachable online hosts  
