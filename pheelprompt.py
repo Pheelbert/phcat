@@ -14,13 +14,15 @@ module_type_playbook_classes_map = {
     ]
 }
 
+PHCAT_PROMPT_STR = 'phcat'
+
 def prompt(pheelshell: Pheelshell=None):
-    prompt_str = '[Offline (pheelpwncat)]> '
+    prompt_str = f'[Offline ({PHCAT_PROMPT_STR})]> '
     if pheelshell:
         basic_host_information = pheelshell.get_playbook(EnumerateBasicHostInformation)
         victim_user = basic_host_information.get_user()
         victim_hostname = basic_host_information.get_hostname()
-        prompt_str = f'[{victim_user}@{victim_hostname} (pheelpwncat)]> '
+        prompt_str = f'[{victim_user}@{victim_hostname} ({PHCAT_PROMPT_STR})]> '
 
     while True:
         command = input(prompt_str).strip()
