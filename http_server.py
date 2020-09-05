@@ -6,7 +6,7 @@ from typing import List
 import utilities
 
 PORT = 8000
-SERVING_DIRECTORY = '/tmp/pheelpwncat/'
+SERVING_DIRECTORY = '/tmp/phcat/'
 VICTIM_CLIENT_FILENAME = 'victim_client_template.py'
 TRANSFER_FOLDER = 'transfer/'
 
