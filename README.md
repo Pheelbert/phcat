@@ -1,3 +1,6 @@
+# Description
+phcat automates and keeps track of what enumeration you've done on the victim system and provides hints on vulnerabilities, misconfigurations, or other interesting facts about your victim host. phcat aspires to automate exploitation as well in a near future, similarly -- but worse -- than Caleb Stewarts's pwncat. The entry point is a reverse shell which is implemented using Gallopsled's pwntools.
+
 # Screenshots
 ![phcat screenshot 1](/screenshots/screenshot1.png)
 ![phcat screenshot 2](/screenshots/screenshot2.png)
