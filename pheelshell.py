@@ -7,6 +7,10 @@ class Pheelshell():
         self.socket = socket
         self.playbooks = {}
         self.hints = []
+    
+    def start_interactive(self):
+        # TODO: Not working
+        self.socket.client.interactive()
 
     def execute_command(self, command: str, expect_single_line_output=False) -> str:
         command_bytes = command.encode()

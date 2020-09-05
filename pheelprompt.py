@@ -15,17 +15,19 @@ module_type_playbook_classes_map = {
 }
 
 def prompt(pheelshell: Pheelshell=None):
-    prompt_str = '[Offline (pheelpwn)]> '
+    prompt_str = '[Offline (pheelpwncat)]> '
     if pheelshell:
         basic_host_information = pheelshell.get_playbook(EnumerateBasicHostInformation)
         victim_user = basic_host_information.get_user()
         victim_hostname = basic_host_information.get_hostname()
-        prompt_str = f'[{victim_user}@{victim_hostname} (pheelpwn)]> '
+        prompt_str = f'[{victim_user}@{victim_hostname} (pheelpwncat)]> '
 
     while True:
         command = input(prompt_str).strip()
         if command == 'quit' or command == 'exit':
             exit()
+        elif command == 'start interactive':
+            pheelshell.start_interactive()
         elif command == 'show hints':
             if not pheelshell:
                 print('Must be connected to a victim in order to show hints.')
@@ -40,19 +42,31 @@ def prompt(pheelshell: Pheelshell=None):
 
         matches = re.search(r'(?P<action>.*) (?P<type>.*) (?P<index>[0-9]+)', command)
         if not matches:
-            matches = re.search(r'(?P<action>.*) (?P<type>.*)', command)
+            matches = re.search(r'(?P<action>.*) \'(?P<command>.*)\'', command)
+            if matches:
+                action = matches.group('action')
+                if action == 'run':
+                    victim_command = matches.group('command')
+                    output = pheelshell.execute_command(victim_command)
+                    print(output)
+                    continue
+                else:
+                    matches = re.search(r'(?P<action>.*) (?P<type>.*)', command)
+
+            if not matches:
+                matches = re.search(r'(?P<action>.*) (?P<type>.*)', command)
 
         if not matches:
             print(f'Unrecognized command: "{command}"')
             continue
 
         action = matches.group('action')
-        if action not in ['use', 'show']:
+        if action not in ['run', 'use', 'show']:
             print(f'Unrecognized action in command: "{command}"')
             continue
 
         module_type = matches.group('type')
-        if module_type not in module_type_playbook_classes_map:
+        if action != 'run' and module_type not in module_type_playbook_classes_map:
             print(f'Unrecognized module type in command: "{command}"')
             continue
 
@@ -62,7 +76,10 @@ def prompt(pheelshell: Pheelshell=None):
             continue
 
         if action and module_type:
-            if action == 'show':
+            if action == 'run':
+                print('The command must be enclosed in single quotes: \"run \'ls\'\"')
+                continue
+            elif action == 'show':
                 if module_index is not None:
                     if not pheelshell:
                         print('Must be connected to a victim in order to show playbook results.')
