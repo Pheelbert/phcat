@@ -36,6 +36,7 @@ def prompt(pheelshell: Pheelshell=None):
         elif command == 'quit' or command == 'exit':
             exit()
         elif command == 'start interactive':
+            # TODO: Not working
             pheelshell.start_interactive()
         elif command == 'show hints':
             if not pheelshell:
