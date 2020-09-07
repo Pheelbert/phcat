@@ -51,6 +51,10 @@ def prompt(pheelshell: Pheelshell=None):
         elif command == 'quit' or command == 'exit':
             exit()
         elif command == 'start interactive':
+            if not pheelshell:
+                print('Must be connected to a victim in order gain an interactive shell.')
+                continue
+
             # TODO: Not working
             pheelshell.start_interactive()
         elif command == 'show hints':
