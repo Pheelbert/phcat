@@ -1,4 +1,6 @@
 import re
+import pwn
+from pwnlib.term.completer import LongestPrefixCompleter
 import listener
 from pheelshell import Pheelshell
 from playbooks.enumerate.basic_host_information import EnumerateBasicHostInformation
@@ -17,6 +19,17 @@ module_type_playbook_classes_map = {
 
 PHCAT_PROMPT_STR = 'phcat'
 
+autocompleter = LongestPrefixCompleter([
+    'show',
+    'use',
+    'enumerate',
+    'exit',
+    'hints',
+    'run',
+    'start',
+    'interactive'
+])
+
 def prompt(pheelshell: Pheelshell=None):
     prompt_str = f'[Offline ({PHCAT_PROMPT_STR})]> '
     if pheelshell:
@@ -26,7 +39,9 @@ def prompt(pheelshell: Pheelshell=None):
         prompt_str = f'[{victim_user}@{victim_hostname} ({PHCAT_PROMPT_STR})]> '
 
     while True:
-        command = input(prompt_str).strip()
+        command = None
+        with autocompleter:
+            command = pwn.str_input(prompt=prompt_str).strip()
 
         matches = re.search(r'listen (?P<address>.*):(?P<port>.*)', command)
         if matches:
@@ -109,6 +124,10 @@ def prompt(pheelshell: Pheelshell=None):
                         description = playbook_class.description()
                         print(f'{index + 1}. [{status}] {playbook_class.__name__}: {description}')
             elif action == 'use' and module_index is not None:
+                if not pheelshell:
+                    print('Must be connected to a victim in order to use playbooks.')
+                    continue
+
                 playbook_class = module_type_playbook_classes_map[module_type][module_index]
                 playbook = playbook_class()
                 pheelshell.run_playbook(playbook)
