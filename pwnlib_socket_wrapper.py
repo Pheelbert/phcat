@@ -39,7 +39,7 @@ class PwnlibSocketWrapper:
 
     def send_command_redirected_to_temporary_file(self, command_bytes: bytes) -> str:
         _hash = hashlib.md5(command_bytes).hexdigest()
-        output_remote_temporary_file = self.remote_output_folder + _hash
+        output_remote_temporary_file = f'{self.remote_output_folder}.{_hash}' # '.' prefix for hidden file
 
         if self.remote_file_exists(output_remote_temporary_file):
             return output_remote_temporary_file
