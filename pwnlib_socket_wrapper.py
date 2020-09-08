@@ -74,3 +74,8 @@ class PwnlibSocketWrapper:
         remote_temporary_file = self.send_command_redirected_to_temporary_file(command_bytes)
         output = self.read_remote_file(remote_temporary_file)
         return output
+
+    def remote_file_readable(self, remote_path: str) -> bool:
+        file_readable_command = f'find {remote_path} -readable'.encode()
+        output = self.send_command_read_output(file_readable_command, expect_single_line_output=True)
+        return not not output

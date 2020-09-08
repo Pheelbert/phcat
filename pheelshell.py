@@ -21,9 +21,12 @@ class Pheelshell():
 
     def download(self, remote_path: str, local_path: str):
         if self.socket.remote_file_exists(remote_path):
-            remote_file_contents = self.socket.read_remote_file(remote_path)
+            if self.socket.remote_file_readable(remote_path):
+                remote_file_contents = self.socket.read_remote_file(remote_path)
+            else:
+                return f'\'{remote_path}\' not readable by current user!'
         else:
-            return f'{remote_path} doesn\'t exist on the remote system!'
+            return f'\'{remote_path}\' doesn\'t exist on the remote system!'
 
         try:
             with open(local_path, 'w') as local_file:
