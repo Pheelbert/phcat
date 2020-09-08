@@ -15,7 +15,7 @@ def main():
     parser.add_argument('-p', '--port', default=9001)
     args = parser.parse_args()
 
-    listen(args.victim_ip, args.por)
+    listen(args.victim_ip, args.port)
 
 def listen(ip, port):
     ipv4s = utilities.fetch_ipv4_addresses()

@@ -19,6 +19,20 @@ class Pheelshell():
         else:
             return self.socket.send_command_read_output_through_temporary_file(command_bytes)
 
+    def download(self, remote_path: str, local_path: str):
+        if self.socket.remote_file_exists(remote_path):
+            remote_file_contents = self.socket.read_remote_file(remote_path)
+        else:
+            return f'{remote_path} doesn\'t exist on the remote system!'
+
+        try:
+            with open(local_path, 'w') as local_file:
+                local_file.write(remote_file_contents)
+
+            return f'Downloaded remote file \'{remote_path}\' to \'{local_path}\' locally.'
+        except IOError:
+            return f'Could not open \'{local_path}\' due to IO error'
+
     def run_playbook(self, playbook: Type[Playbook]):
         playbook.run(self)
         playbook_class_name = playbook.__class__.__name__
