@@ -1,4 +1,6 @@
 import re
+import subprocess
+import sys
 from threading import Thread
 from typing import List
 import netifaces
@@ -31,3 +33,17 @@ class ThreadWithReturnValue(Thread):
     def join(self):
         Thread.join(self)
         return self._return
+
+def run_command_locally(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    retval = process.poll()
+
+    while retval is None:
+        for line in iter(process.stdout.readline, ''):
+            sys.stdout.flush()
+
+        retval = process.poll()
+
+    retval = process.wait()
+    if retval != 0:
+        raise RuntimeError(f'\"{command}\" terminated with a non-zero exit code {retval}')

@@ -29,6 +29,7 @@ autocompleter = LongestPrefixCompleter([
     'start',
     'interactive',
     'download',
+    'upload',
     'listen'
 ])
 
@@ -93,6 +94,18 @@ def prompt(pheelshell: Pheelshell=None):
             continue
         elif command.startswith('download'):
             print('The paths must be enclosed in single quotes: \"download \'/etc/passwd\' \'passwd.txt\'\"')
+            continue
+
+        # Handle upload command
+        matches = re.search(r'upload \'(?P<local_path>.*)\' \'(?P<remote_path>.*)\'', command)
+        if matches:
+            local_path = matches.group('local_path')
+            remote_path = matches.group('remote_path')
+            response_status = pheelshell.upload(local_path, remote_path)
+            print(response_status)
+            continue
+        elif command.startswith('upload'):
+            print('The paths must be enclosed in single quotes: \"upload \'/etc/passwd\' \'passwd.txt\'\"')
             continue
 
         # Handle generic command with 'action type #index'

@@ -1,3 +1,5 @@
+import os.path
+from http.client import RemoteDisconnected
 from typing import Type
 from playbooks.playbook import Playbook
 from pwnlib_socket_wrapper import PwnlibSocketWrapper
@@ -35,6 +37,26 @@ class Pheelshell():
             return f'Downloaded remote file \'{remote_path}\' to \'{local_path}\' locally.'
         except IOError:
             return f'Could not open \'{local_path}\' due to IO error'
+    
+    def upload(self, local_path: str, remote_path: str):
+        if not os.path.exists(local_path):
+            return f'Local file \'{local_path}\' doesn\'t exist!'
+
+        if self.socket.remote_file_exists(remote_path):
+            if self.socket.remote_file_writable(remote_path):
+                print('File already exists, will overwrite...')
+                self.socket.delete_remote_file(remote_path)
+            else:
+                return f'Remote file \'{remote_path}\' already exists and is not writable!'
+
+        content = None
+        with open(local_path, 'r') as local_file:
+            content = local_file.read()
+
+        self.socket.write_remote_file(remote_path, content)
+
+        if self.socket.remote_file_exists(remote_path):
+            return f'Uploaded local file \'{local_path}\' to remote \'{remote_path}\'!'
 
     def run_playbook(self, playbook: Type[Playbook]):
         playbook.run(self)

