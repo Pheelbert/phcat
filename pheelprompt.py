@@ -20,10 +20,11 @@ module_type_playbook_classes_map = {
 PHCAT_PROMPT_STR = 'phcat'
 
 autocompleter = LongestPrefixCompleter([
+    'help',
+    'exit',
     'show',
     'use',
     'enumerate',
-    'exit',
     'hints',
     'run',
     'start',
@@ -32,6 +33,20 @@ autocompleter = LongestPrefixCompleter([
     'upload',
     'listen'
 ])
+
+help = '''
+exit
+help
+listen <victim_ip>:<port>
+run '<command>'
+download '<remote_path>' '<local_path>'
+upload '<local_path>' '<remote_path>'
+show hints
+show enumerate
+show enumerate [playbook_index]
+use enumerate [playbook_index]
+start interactive # TODO
+'''
 
 def prompt(pheelshell: Pheelshell=None):
     prompt_str = f'[({PHCAT_PROMPT_STR})]> '
@@ -46,6 +61,15 @@ def prompt(pheelshell: Pheelshell=None):
         with autocompleter:
             command = pwn.str_input(prompt=prompt_str).strip()
 
+        # Handle quit command
+        if command == 'quit' or command == 'exit':
+            exit()
+
+        # Handle help command
+        if command == 'help':
+            print(help.strip())
+            continue
+
         # Handle listen command
         matches = re.search(r'listen (?P<address>.*):(?P<port>.*)', command)
         if matches:
@@ -57,10 +81,6 @@ def prompt(pheelshell: Pheelshell=None):
             else:
                 print('Already connected to a victim. Start a new prompt to listen on a different IP.')
                 continue
-
-        # Handle quit command
-        if command == 'quit' or command == 'exit':
-            exit()
         
         # Handle start interactive command
         if command == 'start interactive':
