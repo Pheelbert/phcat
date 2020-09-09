@@ -23,7 +23,9 @@ class EnumerateMounts(Playbook):
             for mount_device, mount_point in self.interesting_mount_tuples:
                 output += f'{mount_device} on {mount_point}\n'
 
-        return output[:-1]
+            output = output[:-1]
+
+        return output
     
     def _not_interesting_mount_point(self, mount_point):
         for string in self.not_interesting_strings:
@@ -49,5 +51,9 @@ class EnumerateMounts(Playbook):
     def run(self, shell: Pheelshell):
         output = shell.execute_command('mount')
         self.interesting_mount_tuples = self._parse(output)
+        interesting_mounts_count = len(self.interesting_mount_tuples)
+        if interesting_mounts_count:
+            hint = f'Found {interesting_mounts_count} interesting mount points. Try looking in them or running \'strings <mounted_device>\'.'
+            shell.add_hint(hint)
 
         self._has_run = True
