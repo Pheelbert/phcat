@@ -11,7 +11,6 @@ class PwnlibSocketWrapper:
         self.attacker_ip = attacker_ip
         self.timeout = 1
         self.encoding = 'utf-8'
-        self.remote_output_folder = '/dev/shm/' # /tmp/ TODO: Find somewhere I can write auto-magically
         self.netcat_file_transfer_port = 9002
         self.newline_bytes = b'\n'
 
