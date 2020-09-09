@@ -7,13 +7,15 @@ from playbooks.enumerate.basic_host_information import EnumerateBasicHostInforma
 from playbooks.enumerate.dependencies import EnumerateDependencies
 from playbooks.enumerate.interesting_files import EnumerateInterestingFiles
 from playbooks.enumerate.sudo_list import EnumerateSudoList
+from playbooks.enumerate.mounts import EnumerateMounts
 
 module_type_playbook_classes_map = {
     'enumerate': [
         EnumerateBasicHostInformation,
         EnumerateDependencies,
         EnumerateSudoList,
-        EnumerateInterestingFiles
+        EnumerateInterestingFiles,
+        EnumerateMounts
     ]
 }
 

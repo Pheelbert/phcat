@@ -13,9 +13,16 @@ class EnumerateSudoList(Playbook):
         self.output = None
 
     def __str__(self):
+        if not self.output and self.has_run:
+            return 'Got no output from \'sudo -l\'... Maybe some connection issues?'
+
         return '[sudo -l]\n' + self.output
 
     def _parse(self, output: str, shell: Pheelshell) -> str:
+        if not output:
+            print('Got no output from \'sudo -l\'... Maybe some connection issues?')
+            return
+
         for line in output.split('\n'):
             if line.strip() in ['(ALL : ALL) ALL', '(ALL : ALL) NOPASSWD: ALL', '(ALL) NOPASSWD: ALL']:
                 shell.add_hint('You can run all commands as root by running \'sudo su\' or \'sudo -i\'')

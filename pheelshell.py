@@ -16,10 +16,8 @@ class Pheelshell():
 
     def execute_command(self, command: str, expect_single_line_output=False) -> str:
         command_bytes = command.encode()
-        if expect_single_line_output:
-            return self.socket.send_command_read_output(command_bytes, expect_single_line_output=True)
-        else:
-            return self.socket.send_command_read_output_through_temporary_file(command_bytes)
+        return self.socket.send_command_read_output(command_bytes, expect_single_line_output)
+        # return self.socket.send_command_read_output_through_temporary_file(command_bytes)
 
     def download(self, remote_path: str, local_path: str):
         if self.socket.remote_file_exists(remote_path):
