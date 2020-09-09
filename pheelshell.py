@@ -17,7 +17,6 @@ class Pheelshell():
     def execute_command(self, command: str, expect_single_line_output=False) -> str:
         command_bytes = command.encode()
         return self.socket.send_command_read_output(command_bytes, expect_single_line_output)
-        # return self.socket.send_command_read_output_through_temporary_file(command_bytes)
 
     def download(self, remote_path: str, local_path: str):
         if self.socket.remote_file_exists(remote_path):
@@ -40,12 +39,8 @@ class Pheelshell():
         if not os.path.exists(local_path):
             return f'Local file \'{local_path}\' doesn\'t exist!'
 
-        if self.socket.remote_file_exists(remote_path):
-            if self.socket.remote_file_writable(remote_path):
-                print('File already exists, will overwrite...')
-                self.socket.delete_remote_file(remote_path)
-            else:
-                return f'Remote file \'{remote_path}\' already exists and is not writable!'
+        if self.socket.remote_file_exists(remote_path) and not self.socket.remote_file_writable(remote_path):
+            return f'Remote file \'{remote_path}\' already exists and is not writable!'
 
         content = None
         with open(local_path, 'r') as local_file:

