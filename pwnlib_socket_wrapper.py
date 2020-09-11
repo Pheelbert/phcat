@@ -20,6 +20,7 @@ class PwnlibSocketWrapper:
         self.client.sendline(random_echo_command_bytes)
         self.client.recvuntil(random_echo_command_bytes + self.newline_bytes).decode(self.encoding)
         self.client.recvuntil(random.encode() + self.newline_bytes)
+        self.client.clean()
 
     def send_command_read_output(self, command_bytes: bytes, expect_single_line_output=False) -> str:
         self.synchronize_output()

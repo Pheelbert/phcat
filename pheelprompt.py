@@ -8,6 +8,7 @@ from playbooks.enumerate.dependencies import EnumerateDependencies
 from playbooks.enumerate.interesting_files import EnumerateInterestingFiles
 from playbooks.enumerate.sudo_list import EnumerateSudoList
 from playbooks.enumerate.mounts import EnumerateMounts
+from playbooks.enumerate.suid_files import EnumerateSUIDFiles
 
 module_type_playbook_classes_map = {
     'enumerate': [
@@ -15,7 +16,8 @@ module_type_playbook_classes_map = {
         EnumerateDependencies,
         EnumerateSudoList,
         EnumerateInterestingFiles,
-        EnumerateMounts
+        EnumerateMounts,
+        EnumerateSUIDFiles
     ]
 }
 

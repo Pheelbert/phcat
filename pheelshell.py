@@ -1,5 +1,4 @@
 import os.path
-from http.client import RemoteDisconnected
 from typing import Type
 from playbooks.playbook import Playbook
 from pwnlib_socket_wrapper import PwnlibSocketWrapper
@@ -9,14 +8,15 @@ class Pheelshell():
         self.socket = socket
         self.playbooks = {}
         self.hints = []
-    
+
     def start_interactive(self):
         # TODO: Not working
         self.socket.client.interactive()
 
     def execute_command(self, command: str, expect_single_line_output=False) -> str:
         command_bytes = command.encode()
-        return self.socket.send_command_read_output(command_bytes, expect_single_line_output)
+        output = self.socket.send_command_read_output(command_bytes, expect_single_line_output)
+        return output
 
     def download(self, remote_path: str, local_path: str):
         if self.socket.remote_file_exists(remote_path):
