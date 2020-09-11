@@ -1,3 +1,4 @@
+from logging import setLogRecordFactory
 import re
 from typing import List, Tuple
 from pheelshell import Pheelshell
@@ -53,7 +54,15 @@ class EnumerateMounts(Playbook):
         self.interesting_mount_tuples = self._parse(output)
         interesting_mounts_count = len(self.interesting_mount_tuples)
         if interesting_mounts_count:
-            hint = f'Found {interesting_mounts_count} interesting mount points. Try looking in them or running \'strings <mounted_device>\'.'
+            mount_details = ''
+            for mount_device, mount_point in self.interesting_mount_tuples:
+                mount_details += f'  - {mount_device} on {mount_point}\n'
+            mount_details = mount_details[:-1]
+
+            hint = (
+                f'Found {interesting_mounts_count} interesting mount points. Try looking in them or running \'strings <mounted_device>\'.\n'
+                f'{mount_details}'
+            )
             shell.add_hint(hint)
 
         self._has_run = True
